@@ -1,5 +1,7 @@
 package me.athlaeos.chestshopholos.managers;
 
+import org.bukkit.entity.Player;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -10,37 +12,37 @@ public class HoloOptionManager {
     private final Map<UUID, Boolean> holoEnabledOptions = new HashMap<>();
     private final Map<UUID, Boolean> holoItemsEnabledOptions = new HashMap<>();
 
-    public boolean placeHoloAboveBlock(UUID uuid){
-        if (holoLocationOptions.containsKey(uuid)){
-            return holoLocationOptions.get(uuid);
+    public boolean placeHoloAboveBlock(Player player){
+        if (holoLocationOptions.containsKey(player.getUniqueId())){
+            return holoLocationOptions.get(player.getUniqueId());
         }
-        return true;
+        return player.hasPermission("shopholo.toggle") || player.hasPermission("shopholo.toggle.placement");
     }
 
-    public boolean placeHolo(UUID uuid){
-        if (holoEnabledOptions.containsKey(uuid)){
-            return holoEnabledOptions.get(uuid);
+    public boolean placeHolo(Player player){
+        if (holoEnabledOptions.containsKey(player.getUniqueId())){
+            return holoEnabledOptions.get(player.getUniqueId());
         }
-        return true;
+        return player.hasPermission("shopholo.toggle") || player.hasPermission("shopholo.toggle.holograms");
     }
 
-    public boolean placeHoloItemIcon(UUID uuid){
-        if (holoItemsEnabledOptions.containsKey(uuid)){
-            return holoItemsEnabledOptions.get(uuid);
+    public boolean placeHoloItemIcon(Player player){
+        if (holoItemsEnabledOptions.containsKey(player.getUniqueId())){
+            return holoItemsEnabledOptions.get(player.getUniqueId());
         }
-        return true;
+        return player.hasPermission("shopholo.toggle") || player.hasPermission("shopholo.toggle.icons");
     }
 
-    public void toggleHolosAboveBlock(UUID uuid){
-        holoLocationOptions.put(uuid, !placeHoloAboveBlock(uuid));
+    public void toggleHolosAboveBlock(Player player){
+        holoLocationOptions.put(player.getUniqueId(), !placeHoloAboveBlock(player));
     }
 
-    public void toggleHolosEnabled(UUID uuid){
-        holoEnabledOptions.put(uuid, !placeHolo(uuid));
+    public void toggleHolosEnabled(Player player){
+        holoEnabledOptions.put(player.getUniqueId(), !placeHolo(player));
     }
 
-    public void toggleHoloItemIcons(UUID uuid){
-        holoItemsEnabledOptions.put(uuid, !placeHoloItemIcon(uuid));
+    public void toggleHoloItemIcons(Player player){
+        holoItemsEnabledOptions.put(player.getUniqueId(), !placeHoloItemIcon(player));
     }
 
     public static HoloOptionManager getInstance(){

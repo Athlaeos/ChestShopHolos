@@ -40,8 +40,8 @@ public class ToggleHoloOptionsCommand implements TabExecutor {
                     return true;
                 }
                 if (sender.hasPermission("shopholo.toggle") || sender.hasPermission("shopholo.toggle.placement")){
-                    HoloOptionManager.getInstance().toggleHolosAboveBlock(((Player) sender).getUniqueId());
-                    if (HoloOptionManager.getInstance().placeHoloAboveBlock(((Player) sender).getUniqueId())){
+                    HoloOptionManager.getInstance().toggleHolosAboveBlock(((Player) sender));
+                    if (HoloOptionManager.getInstance().placeHoloAboveBlock(((Player) sender))){
                         sender.sendMessage(Utils.chat(toggleOnBlock));
                     } else {
                         sender.sendMessage(Utils.chat(toggleOnSign));
@@ -55,8 +55,8 @@ public class ToggleHoloOptionsCommand implements TabExecutor {
                     return true;
                 }
                 if (sender.hasPermission("shopholo.toggle") || sender.hasPermission("shopholo.toggle.holograms")){
-                    HoloOptionManager.getInstance().toggleHolosEnabled(((Player) sender).getUniqueId());
-                    if (HoloOptionManager.getInstance().placeHolo(((Player) sender).getUniqueId())){
+                    HoloOptionManager.getInstance().toggleHolosEnabled(((Player) sender));
+                    if (HoloOptionManager.getInstance().placeHolo(((Player) sender))){
                         sender.sendMessage(Utils.chat(toggleHolosOn));
                     } else {
                         sender.sendMessage(Utils.chat(toggleHolosOff));
@@ -70,8 +70,8 @@ public class ToggleHoloOptionsCommand implements TabExecutor {
                     return true;
                 }
                 if (sender.hasPermission("shopholo.toggle") || sender.hasPermission("shopholo.toggle.icons")){
-                    HoloOptionManager.getInstance().toggleHoloItemIcons(((Player) sender).getUniqueId());
-                    if (HoloOptionManager.getInstance().placeHoloItemIcon(((Player) sender).getUniqueId())){
+                    HoloOptionManager.getInstance().toggleHoloItemIcons(((Player) sender));
+                    if (HoloOptionManager.getInstance().placeHoloItemIcon(((Player) sender))){
                         sender.sendMessage(Utils.chat(toggleIconOn));
                     } else {
                         sender.sendMessage(Utils.chat(toggleIconOff));

@@ -40,11 +40,11 @@ public class ChestShopListener implements Listener {
 
     @EventHandler
     public void onPlayerShopCreate(ShopCreatedEvent e){
-        if (!HoloOptionManager.getInstance().placeHolo(e.getPlayer().getUniqueId())) return;
+        if (!HoloOptionManager.getInstance().placeHolo(e.getPlayer())) return;
         Location holoLocation;
         Location itemLocation;
         Location signLocation = e.getSign().getLocation();
-        if (HoloOptionManager.getInstance().placeHoloAboveBlock(e.getPlayer().getUniqueId())){
+        if (HoloOptionManager.getInstance().placeHoloAboveBlock(e.getPlayer())){
             holoLocation = getSignSupportBlockLocation(e.getSign());
             if (holoLocation == null) holoLocation = e.getSign().getLocation();
         } else {
@@ -54,7 +54,7 @@ public class ChestShopListener implements Listener {
         holoLocation.add(0.5, 1.8, 0.5);
         itemLocation.add(0.5, 1, 0.5);
 
-        if (!HoloOptionManager.getInstance().placeHoloItemIcon(e.getPlayer().getUniqueId())){
+        if (!HoloOptionManager.getInstance().placeHoloItemIcon(e.getPlayer())){
             holoLocation.subtract(0, 1, 0); // Adjust hologram location if item is absent
         }
 
@@ -115,7 +115,7 @@ public class ChestShopListener implements Listener {
             }
 
         }
-        if (HoloOptionManager.getInstance().placeHoloItemIcon(e.getPlayer().getUniqueId())){
+        if (HoloOptionManager.getInstance().placeHoloItemIcon(e.getPlayer())){
             Item itemHolo = (Item) e.getSign().getWorld().spawnEntity(itemLocation, EntityType.DROPPED_ITEM);
             itemHolo.setItemStack(item);
             itemHolo.setPickupDelay(Integer.MAX_VALUE);
