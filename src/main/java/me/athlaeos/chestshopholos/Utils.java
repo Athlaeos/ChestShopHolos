@@ -1,13 +1,27 @@
 package me.athlaeos.chestshopholos;
 
-import com.Acrobot.Breeze.Utils.MaterialUtil;
+import com.comphenix.packetwrapper.WrapperPlayServerEntityMetadata;
+import com.comphenix.packetwrapper.WrapperPlayServerNamedEntitySpawn;
+import com.comphenix.packetwrapper.WrapperPlayServerPlayerInfo;
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.wrappers.*;
 import net.md_5.bungee.api.ChatColor;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.World;
-import org.bukkit.block.Sign;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,19 +44,6 @@ public class Utils {
         }
     }
 
-    public static boolean isShopSign(Sign s){
-        try {
-            Integer.parseInt(s.getLine(1));
-            if (s.getLine(2).contains("B") || s.getLine(2).contains("S")){
-                return MaterialUtil.getItem(s.getLine(3)) != null;
-            } else {
-                return false;
-            }
-        } catch (IllegalArgumentException ignored){
-            return false;
-        }
-    }
-
     public static String getItemName(ItemStack i){
         String name;
         assert i.getItemMeta() != null;
@@ -60,11 +61,6 @@ public class Utils {
         return String.format("%f;%f;%f|%f;%f;%f",
                 placementLocation.getX(), placementLocation.getY(), placementLocation.getZ(),
                 signLocation.getX(), signLocation.getY(), signLocation.getZ());
-    }
-
-    public static String locationToString(Location location){
-        return String.format("%f-%f-%f",
-                location.getX(), location.getY(), location.getZ()).replace(".", "_");
     }
 
     public static Location stringToPlacementLocation(String l, World w){
