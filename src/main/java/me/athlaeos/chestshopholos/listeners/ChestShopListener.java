@@ -6,7 +6,7 @@ import com.Acrobot.ChestShop.Events.ShopCreatedEvent;
 import com.Acrobot.ChestShop.Events.ShopDestroyedEvent;
 import me.athlaeos.chestshopholos.Main;
 import me.athlaeos.chestshopholos.Utils;
-import me.athlaeos.chestshopholos.managers.HoloLocationManager;
+import me.athlaeos.chestshopholos.managers.HoloOptionManager;
 import org.bukkit.Location;
 import org.bukkit.NamespacedKey;
 import org.bukkit.block.Sign;
@@ -24,23 +24,27 @@ import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.Vector;
 
+import java.util.List;
+import java.util.ListIterator;
+
 public class ChestShopListener implements Listener {
-    public static String buyLine;
-    public static String sellLine;
+    public static List<String> buyLines;
+    public static List<String> sellLines;
     public final static NamespacedKey holoDisplaykey = new NamespacedKey(Main.getPlugin(), "chestshop_hologram");
     public final static NamespacedKey holoTypeKey = new NamespacedKey(Main.getPlugin(), "chestshop_holo_type");
 
     public ChestShopListener(){
-        buyLine = Main.getPlugin().getConfig().getString("buy_line");
-        sellLine = Main.getPlugin().getConfig().getString("sell_line");
+        buyLines = Main.getPlugin().getConfig().getStringList("buy_line");
+        sellLines = Main.getPlugin().getConfig().getStringList("sell_line");
     }
 
     @EventHandler
     public void onPlayerShopCreate(ShopCreatedEvent e){
+        if (!HoloOptionManager.getInstance().placeHolo(e.getPlayer().getUniqueId())) return;
         Location holoLocation;
         Location itemLocation;
         Location signLocation = e.getSign().getLocation();
-        if (HoloLocationManager.getInstance().placeHoloAboveBlock(e.getPlayer().getUniqueId())){
+        if (HoloOptionManager.getInstance().placeHoloAboveBlock(e.getPlayer().getUniqueId())){
             holoLocation = getSignSupportBlockLocation(e.getSign());
             if (holoLocation == null) holoLocation = e.getSign().getLocation();
         } else {
@@ -50,75 +54,91 @@ public class ChestShopListener implements Listener {
         holoLocation.add(0.5, 1.8, 0.5);
         itemLocation.add(0.5, 1, 0.5);
 
+        if (!HoloOptionManager.getInstance().placeHoloItemIcon(e.getPlayer().getUniqueId())){
+            holoLocation.subtract(0, 1, 0); // Adjust hologram location if item is absent
+        }
+
         boolean sell = e.getSignLines()[2].contains("S");
         boolean buy = e.getSignLines()[2].contains("B");
 
         ItemStack item = MaterialUtil.getItem(e.getSignLine((short) 3));
 
-        if (buy && buyLine != null){
-            ArmorStand buyHolo = (ArmorStand) e.getSign().getWorld().spawnEntity(holoLocation, EntityType.ARMOR_STAND);
+        if (buy && buyLines.size() != 0){
+            ListIterator<String> reversebuyLines = buyLines.listIterator(buyLines.size());
+            while (reversebuyLines.hasPrevious()){
+                ArmorStand buyHolo = (ArmorStand) e.getSign().getWorld().spawnEntity(holoLocation, EntityType.ARMOR_STAND);
 
-            buyHolo.setBasePlate(false);
-            buyHolo.setVisible(false);
-            buyHolo.setGravity(false);
-            buyHolo.setAI(false);
-            buyHolo.setInvulnerable(true);
-            buyHolo.setCollidable(false);
-            buyHolo.setMarker(true);
-            buyHolo.setPersistent(true);
-            buyHolo.setSmall(true);
-            buyHolo.setCustomNameVisible(true);
-            buyHolo.setCustomName(Utils.chat(buyLine
-                    .replace("%item%", Utils.getItemName(item))
-                    .replace("%amount%", e.getSignLine((short)1))
-                    .replace("%cost%", String.format("%.2f", PriceUtil.getExactBuyPrice(e.getSignLine((short) 2))))));
-            buyHolo.getPersistentDataContainer().set(holoDisplaykey, PersistentDataType.STRING, Utils.holoLocationToString(holoLocation, signLocation));
-            buyHolo.getPersistentDataContainer().set(holoTypeKey, PersistentDataType.STRING, "buy");
+                buyHolo.setBasePlate(false);
+                buyHolo.setVisible(false);
+                buyHolo.setGravity(false);
+                buyHolo.setAI(false);
+                buyHolo.setInvulnerable(true);
+                buyHolo.setCollidable(false);
+                buyHolo.setMarker(true);
+                buyHolo.setPersistent(true);
+                buyHolo.setSmall(true);
+                buyHolo.setCustomNameVisible(true);
+                String line = reversebuyLines.previous();
+                buyHolo.setCustomName(Utils.chat(line
+                        .replace("%item%", Utils.getItemName(item))
+                        .replace("%amount%", e.getSignLine((short)1))
+                        .replace("%cost%", String.format("%.2f", PriceUtil.getExactBuyPrice(e.getSignLine((short) 2))))));
+                buyHolo.getPersistentDataContainer().set(holoDisplaykey, PersistentDataType.STRING, Utils.holoLocationToString(holoLocation, signLocation));
+                buyHolo.getPersistentDataContainer().set(holoTypeKey, PersistentDataType.STRING, "buy");
+                holoLocation = holoLocation.add(0, 0.25, 0);
+            }
 
             holoLocation = holoLocation.add(0, 0.4, 0);
         }
-        if (sell && sellLine != null){
-            ArmorStand sellHolo = (ArmorStand) e.getSign().getWorld().spawnEntity(holoLocation, EntityType.ARMOR_STAND);
-            sellHolo.setBasePlate(false);
-            sellHolo.setVisible(false);
-            sellHolo.setGravity(false);
-            sellHolo.setAI(false);
-            sellHolo.setMarker(true);
-            sellHolo.setCollidable(false);
-            sellHolo.setInvulnerable(true);
-            sellHolo.setPersistent(true);
-            sellHolo.setSmall(true);
-            sellHolo.setCustomNameVisible(true);
-            sellHolo.setCustomName(Utils.chat(sellLine
-                    .replace("%item%", Utils.getItemName(item))
-                    .replace("%amount%", e.getSignLine((short)1))
-                    .replace("%cost%", String.format("%.2f", PriceUtil.getExactSellPrice(e.getSignLine((short) 2))))));
-            sellHolo.getPersistentDataContainer().set(holoDisplaykey, PersistentDataType.STRING, Utils.holoLocationToString(holoLocation, signLocation));
-            sellHolo.getPersistentDataContainer().set(holoTypeKey, PersistentDataType.STRING, "sell");
+        if (sell && sellLines.size() != 0){
+            ListIterator<String> reverseSellLines = sellLines.listIterator(sellLines.size());
+            while (reverseSellLines.hasPrevious()){
+                ArmorStand sellHolo = (ArmorStand) e.getSign().getWorld().spawnEntity(holoLocation, EntityType.ARMOR_STAND);
+                sellHolo.setBasePlate(false);
+                sellHolo.setVisible(false);
+                sellHolo.setGravity(false);
+                sellHolo.setAI(false);
+                sellHolo.setMarker(true);
+                sellHolo.setCollidable(false);
+                sellHolo.setInvulnerable(true);
+                sellHolo.setPersistent(true);
+                sellHolo.setSmall(true);
+                sellHolo.setCustomNameVisible(true);
+                String line = reverseSellLines.previous();
+                sellHolo.setCustomName(Utils.chat(line
+                        .replace("%item%", Utils.getItemName(item))
+                        .replace("%amount%", e.getSignLine((short)1))
+                        .replace("%cost%", String.format("%.2f", PriceUtil.getExactSellPrice(e.getSignLine((short) 2))))));
+                sellHolo.getPersistentDataContainer().set(holoDisplaykey, PersistentDataType.STRING, Utils.holoLocationToString(holoLocation, signLocation));
+                sellHolo.getPersistentDataContainer().set(holoTypeKey, PersistentDataType.STRING, "sell");
+                holoLocation = holoLocation.add(0, 0.25, 0);
+            }
 
         }
-        Item itemHolo = (Item) e.getSign().getWorld().spawnEntity(itemLocation, EntityType.DROPPED_ITEM);
-        itemHolo.setItemStack(item);
-        itemHolo.setPickupDelay(Integer.MAX_VALUE);
-        itemHolo.setGravity(false);
-        itemHolo.setInvulnerable(true);
-        itemHolo.setPersistent(true);
-        itemHolo.getPersistentDataContainer().set(holoDisplaykey, PersistentDataType.STRING, Utils.holoLocationToString(itemLocation, signLocation));
-        itemHolo.getPersistentDataContainer().set(holoTypeKey, PersistentDataType.STRING, "item");
+        if (HoloOptionManager.getInstance().placeHoloItemIcon(e.getPlayer().getUniqueId())){
+            Item itemHolo = (Item) e.getSign().getWorld().spawnEntity(itemLocation, EntityType.DROPPED_ITEM);
+            itemHolo.setItemStack(item);
+            itemHolo.setPickupDelay(Integer.MAX_VALUE);
+            itemHolo.setGravity(false);
+            itemHolo.setInvulnerable(true);
+            itemHolo.setPersistent(true);
+            itemHolo.getPersistentDataContainer().set(holoDisplaykey, PersistentDataType.STRING, Utils.holoLocationToString(itemLocation, signLocation));
+            itemHolo.getPersistentDataContainer().set(holoTypeKey, PersistentDataType.STRING, "item");
 
-        new BukkitRunnable(){
-            int timerLimiter = 0;
-            @Override
-            public void run() {
-                if (timerLimiter >= 5) {
-                    cancel();
-                    return;
+            new BukkitRunnable(){
+                int timerLimiter = 0;
+                @Override
+                public void run() {
+                    if (timerLimiter >= 5) {
+                        cancel();
+                        return;
+                    }
+                    itemHolo.setVelocity(new Vector(0, 0, 0));
+                    itemHolo.teleport(itemLocation);
+                    timerLimiter++;
                 }
-                itemHolo.setVelocity(new Vector(0, 0, 0));
-                itemHolo.teleport(itemLocation);
-                timerLimiter++;
-            }
-        }.runTaskTimer(Main.getPlugin(), 0L, 10L);
+            }.runTaskTimer(Main.getPlugin(), 0L, 10L);
+        }
     }
 
     @EventHandler

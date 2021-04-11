@@ -11,5 +11,15 @@ commands:
 
 permissions:
   shopholo.toggle:
-    description: Allows the user access to /chestshopholo toggle, which toggles if holograms appear on top of the sign or on top of the block the sign is placed against
+    description: Allows the user access to all /chestshopholo toggle commands
     default: op
+  shopholo.toggle.icons:
+    description: Allows the user access to /chestshopholo toggle_item_icon, which allows the user to toggle item icons on chestshops they make
+    default: op
+  shopholo.toggle.holograms:
+    description: Allows the user access to /chestshopholo toggle_holos, which allows the user to toggle holograms on chestshops they make
+    default: op
+  shopholo.toggle.placement:
+    description: Allows the user access to /chestshopholo toggle_placement, which allows the user to toggle if holograms appear over the shop's sign or over the block they're placed against
+    default: op
+
