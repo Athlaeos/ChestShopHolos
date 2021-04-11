@@ -2,8 +2,6 @@ package me.athlaeos.chestshopholos;
 
 import com.Acrobot.Breeze.Utils.MaterialUtil;
 import com.Acrobot.Breeze.Utils.PriceUtil;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.ProtocolManager;
 import me.athlaeos.chestshopholos.listeners.ChestShopListener;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -23,12 +21,10 @@ import java.util.*;
 
 public final class Main extends JavaPlugin {
     private static Main plugin;
-    private static ProtocolManager protocolManager;
 
     @Override
     public void onEnable() {
         plugin = this;
-        protocolManager = ProtocolLibrary.getProtocolManager();
 
         // Plugin startup logic
         saveResource("config.yml", false);

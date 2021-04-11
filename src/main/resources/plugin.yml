@@ -2,7 +2,7 @@ name: Chestshopholos
 version: 1.0
 main: me.athlaeos.chestshopholos.Main
 api-version: 1.16
-depend: [ChestShop, ProtocolLib]
+depend: [ChestShop]
 description: Adds holograms to chestshops
 commands:
   chestshopholo:
