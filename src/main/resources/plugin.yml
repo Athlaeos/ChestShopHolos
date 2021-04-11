@@ -1,0 +1,15 @@
+name: Chestshopholos
+version: 1.0
+main: me.athlaeos.chestshopholos.Main
+api-version: 1.16
+depend: [ChestShop, ProtocolLib]
+description: Adds holograms to chestshops
+commands:
+  chestshopholo:
+    description: Base command for the ChestShopHolos plugin
+    aliases: [holos]
+
+permissions:
+  shopholo.toggle:
+    description: Allows the user access to /chestshopholo toggle, which toggles if holograms appear on top of the sign or on top of the block the sign is placed against
+    default: op

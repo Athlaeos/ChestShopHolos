@@ -1,0 +1,7 @@
+buy_line: '&fBuy &e%amount%&fx&e%item%&f for &e%cost%&f$'
+sell_line: '&fSell &e%amount%&fx&e%item%&f for &e%cost%&f$'
+
+error_no_permission: '&cYou do not have access to this command'
+
+toggle_on_sign: '&7ChestShops you make now get holograms placed above its &esigns'
+toggle_on_block: '&7ChestShops you make now get holograms placed above the &eblock &7it''s placed against'
