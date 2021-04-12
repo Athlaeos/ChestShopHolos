@@ -22,4 +22,7 @@ permissions:
   shopholo.toggle.placement:
     description: Allows the user access to /chestshopholo toggle_placement, which allows the user to toggle if holograms appear over the shop's sign or over the block they're placed against
     default: op
+  shopholo.reset:
+    description: Allows the user to reset the holograms in case of config changes
+    default: op
 

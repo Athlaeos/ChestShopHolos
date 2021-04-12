@@ -31,45 +31,6 @@ public final class Main extends JavaPlugin {
         saveDefaultConfig();
         getServer().getPluginManager().registerEvents(new ChestShopListener(), this);
         new ToggleHoloOptionsCommand();
-
-        new BukkitRunnable(){
-            @Override
-            public void run() {
-                Map<Sign, List<Entity>> shopHolos = new HashMap<>();
-                for (World w : getServer().getWorlds()){
-                    for (Entity entity : w.getEntitiesByClasses(Item.class, ArmorStand.class)){
-                        if (entity.getPersistentDataContainer().has(ChestShopListener.holoDisplaykey, PersistentDataType.STRING)) {
-                            Location teleportTo = Utils.stringToPlacementLocation(entity.getPersistentDataContainer().get(ChestShopListener.holoDisplaykey, PersistentDataType.STRING), entity.getWorld());
-                            if (teleportTo != null) {
-                                entity.teleport(teleportTo);
-                                Location signLocation = Utils.stringToSignLocation(entity.getPersistentDataContainer().get(ChestShopListener.holoDisplaykey, PersistentDataType.STRING), entity.getWorld());
-                                if (signLocation != null) {
-                                    BlockState state = entity.getWorld().getBlockAt(signLocation).getState();
-                                    if (state instanceof Sign) {
-                                        Sign s = (Sign) state;
-
-                                        if (isShopSign(s)) {
-                                            String type = entity.getPersistentDataContainer().get(ChestShopListener.holoTypeKey, PersistentDataType.STRING);
-                                            if (type != null) {
-                                                List<Entity> holos;
-                                                if (shopHolos.containsKey(s)) {
-                                                    holos = shopHolos.get(s);
-                                                } else {
-                                                    holos = new ArrayList<>();
-                                                }
-                                                holos.add(entity);
-                                                shopHolos.put(s, holos);
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-                resetShopHolos(shopHolos);
-            }
-        }.runTaskTimer(this, 0L, this.getConfig().getInt("hologram_correction_rate"));
     }
 
     @Override
@@ -81,13 +42,46 @@ public final class Main extends JavaPlugin {
         return plugin;
     }
 
-    private void resetShopHolos(Map<Sign, List<Entity>> holos){
-        for (Sign sign : holos.keySet()){
+    public static void resetShopHolos(){
+        Map<Sign, List<Entity>> shopHolos = new HashMap<>();
+        for (World w : Main.getPlugin().getServer().getWorlds()){
+            for (Entity entity : w.getEntitiesByClasses(Item.class, ArmorStand.class)){
+                if (entity.getPersistentDataContainer().has(ChestShopListener.holoDisplaykey, PersistentDataType.STRING)) {
+                    Location teleportTo = Utils.stringToPlacementLocation(entity.getPersistentDataContainer().get(ChestShopListener.holoDisplaykey, PersistentDataType.STRING), entity.getWorld());
+                    if (teleportTo != null) {
+                        entity.teleport(teleportTo);
+                        Location signLocation = Utils.stringToSignLocation(entity.getPersistentDataContainer().get(ChestShopListener.holoDisplaykey, PersistentDataType.STRING), entity.getWorld());
+                        if (signLocation != null) {
+                            BlockState state = entity.getWorld().getBlockAt(signLocation).getState();
+                            if (state instanceof Sign) {
+                                Sign s = (Sign) state;
+
+                                if (Utils.isShopSign(s)) {
+                                    String type = entity.getPersistentDataContainer().get(ChestShopListener.holoTypeKey, PersistentDataType.STRING);
+                                    if (type != null) {
+                                        List<Entity> holos;
+                                        if (shopHolos.containsKey(s)) {
+                                            holos = shopHolos.get(s);
+                                        } else {
+                                            holos = new ArrayList<>();
+                                        }
+                                        holos.add(entity);
+                                        shopHolos.put(s, holos);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        for (Sign sign : shopHolos.keySet()){
             List<ArmorStand> buyHolos = new ArrayList<>();
             List<ArmorStand> sellHolos = new ArrayList<>();
             Item itemHolo = null;
 
-            for (Entity holo : holos.get(sign)){
+            for (Entity holo : shopHolos.get(sign)){
                 if (holo.getType() == EntityType.ARMOR_STAND || holo.getType() == EntityType.DROPPED_ITEM){
                     if (holo.getPersistentDataContainer().has(ChestShopListener.holoTypeKey, PersistentDataType.STRING)){
                         String type = holo.getPersistentDataContainer().get(ChestShopListener.holoTypeKey, PersistentDataType.STRING);
@@ -142,6 +136,7 @@ public final class Main extends JavaPlugin {
                         buyHolo.setAI(false);
                         buyHolo.setInvulnerable(true);
                         buyHolo.setCollidable(false);
+                        buyHolo.setSilent(true);
                         buyHolo.setMarker(true);
                         buyHolo.setPersistent(true);
                         buyHolo.setSmall(true);
@@ -167,6 +162,7 @@ public final class Main extends JavaPlugin {
                         sellHolo.setGravity(false);
                         sellHolo.setAI(false);
                         sellHolo.setMarker(true);
+                        sellHolo.setSilent(true);
                         sellHolo.setCollidable(false);
                         sellHolo.setInvulnerable(true);
                         sellHolo.setPersistent(true);
@@ -183,36 +179,23 @@ public final class Main extends JavaPlugin {
                     }
 
                 }
-                if (itemHolo != null){
-                    Item finalItemHolo = itemHolo;
-                    new BukkitRunnable(){
-                        int timerLimiter = 0;
-                        @Override
-                        public void run() {
-                            if (timerLimiter >= 5) {
-                                cancel();
-                                return;
-                            }
-                            finalItemHolo.setVelocity(new Vector(0, 0, 0));
-                            finalItemHolo.teleport(itemLocation);
-                            timerLimiter++;
-                        }
-                    }.runTaskTimer(Main.getPlugin(), 0L, 10L);
-                }
+//                if (itemHolo != null){
+//                    Item finalItemHolo = itemHolo;
+//                    new BukkitRunnable(){
+//                        int timerLimiter = 0;
+//                        @Override
+//                        public void run() {
+//                            if (timerLimiter >= 5) {
+//                                cancel();
+//                                return;
+//                            }
+//                            finalItemHolo.setVelocity(new Vector(0, 0, 0));
+//                            finalItemHolo.teleport(itemLocation);
+//                            timerLimiter++;
+//                        }
+//                    }.runTaskTimer(Main.getPlugin(), 0L, 10L);
+//                }
             }
-        }
-    }
-
-    private boolean isShopSign(Sign s){
-        try {
-            Integer.parseInt(s.getLine(1));
-            if (s.getLine(2).contains("B") || s.getLine(2).contains("S")){
-                return MaterialUtil.getItem(s.getLine(3)) != null;
-            } else {
-                return false;
-            }
-        } catch (IllegalArgumentException ignored){
-            return false;
         }
     }
 }

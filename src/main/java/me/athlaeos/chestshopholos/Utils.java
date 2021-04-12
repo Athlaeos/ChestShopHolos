@@ -1,8 +1,10 @@
 package me.athlaeos.chestshopholos;
 
+import com.Acrobot.Breeze.Utils.MaterialUtil;
 import net.md_5.bungee.api.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.World;
+import org.bukkit.block.Sign;
 import org.bukkit.inventory.ItemStack;
 
 import java.math.BigDecimal;
@@ -25,6 +27,19 @@ public class Utils {
                 );
             }
             return ChatColor.translateAlternateColorCodes('&', matcher.appendTail(buffer).toString());
+        }
+    }
+
+    public static boolean isShopSign(Sign s){
+        try {
+            Integer.parseInt(s.getLine(1));
+            if (s.getLine(2).contains("B") || s.getLine(2).contains("S")){
+                return MaterialUtil.getItem(s.getLine(3)) != null;
+            } else {
+                return false;
+            }
+        } catch (IllegalArgumentException ignored){
+            return false;
         }
     }
 

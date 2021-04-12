@@ -18,6 +18,7 @@ public class ToggleHoloOptionsCommand implements TabExecutor {
     private final String toggleIconOff;
     private final String toggleHolosOn;
     private final String toggleHolosOff;
+    private final String reloadSuccess;
 
     public ToggleHoloOptionsCommand(){
         errorNoPermission = Main.getPlugin().getConfig().getString("error_no_permission");
@@ -27,6 +28,7 @@ public class ToggleHoloOptionsCommand implements TabExecutor {
         toggleIconOff = Main.getPlugin().getConfig().getString("toggle_icon_off");
         toggleHolosOn = Main.getPlugin().getConfig().getString("toggle_holos_on");
         toggleHolosOff = Main.getPlugin().getConfig().getString("toggle_holos_off");
+        reloadSuccess = Main.getPlugin().getConfig().getString("reload_success");
 
         Main.getPlugin().getCommand("chestshopholo").setExecutor(this);
     }
@@ -79,6 +81,13 @@ public class ToggleHoloOptionsCommand implements TabExecutor {
                 } else {
                     sender.sendMessage(Utils.chat(errorNoPermission));
                 }
+            } else if (args[0].equalsIgnoreCase("resetholos")){
+                if (sender.hasPermission("shopholo.reset")){
+                    Main.resetShopHolos();
+                    sender.sendMessage(Utils.chat(reloadSuccess));
+                } else {
+                    sender.sendMessage(Utils.chat(errorNoPermission));
+                }
             }
         }
         return true;
@@ -87,7 +96,7 @@ public class ToggleHoloOptionsCommand implements TabExecutor {
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
         if (args.length == 1){
-            return Arrays.asList("toggle_holos", "toggle_placement", "toggle_item_icon");
+            return Arrays.asList("toggle_holos", "toggle_placement", "toggle_item_icon", "resetholos");
         }
         return null;
     }

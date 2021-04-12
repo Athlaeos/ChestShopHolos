@@ -74,6 +74,7 @@ public class ChestShopListener implements Listener {
                 buyHolo.setAI(false);
                 buyHolo.setInvulnerable(true);
                 buyHolo.setCollidable(false);
+                buyHolo.setSilent(true);
                 buyHolo.setMarker(true);
                 buyHolo.setPersistent(true);
                 buyHolo.setSmall(true);
@@ -99,6 +100,7 @@ public class ChestShopListener implements Listener {
                 sellHolo.setGravity(false);
                 sellHolo.setAI(false);
                 sellHolo.setMarker(true);
+                sellHolo.setSilent(true);
                 sellHolo.setCollidable(false);
                 sellHolo.setInvulnerable(true);
                 sellHolo.setPersistent(true);
