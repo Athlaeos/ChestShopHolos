@@ -2,15 +2,17 @@ package me.athlaeos.chestshopholos;
 
 import com.Acrobot.Breeze.Utils.MaterialUtil;
 import com.Acrobot.Breeze.Utils.PriceUtil;
+import com.gmail.filoghost.holographicdisplays.disk.HologramDatabase;
+import com.gmail.filoghost.holographicdisplays.object.NamedHologram;
+import com.gmail.filoghost.holographicdisplays.object.NamedHologramManager;
 import me.athlaeos.chestshopholos.listeners.ChestShopListener;
+import me.athlaeos.chestshopholos.managers.HoloOptionManager;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Item;
+import org.bukkit.block.data.Directional;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.persistence.PersistentDataType;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -99,12 +101,14 @@ public final class Main extends JavaPlugin {
                             } else if (type.equalsIgnoreCase("item")){
                                 if (holo instanceof Item){
                                     itemHolo = (Item) holo;
+                                    holo.remove();
                                 }
                             }
                         }
                     }
                 }
             }
+
             Location approximateLocation = null;
             // The purpose of this is to know the X and Z coordinates for the hologram placement, the Y coordinate is the
             // only different variable
@@ -116,85 +120,42 @@ public final class Main extends JavaPlugin {
                 Location itemLocation = approximateLocation.clone();
                 holoLocation.setY(sign.getLocation().getY());
                 itemLocation.setY(sign.getLocation().getY());
-                holoLocation.add(0, 1.8, 0);
-                itemLocation.add(0, 1, 0);
+                holoLocation.add(0, 2.4, 0);
+                itemLocation.add(0, 1.6, 0);
                 if (itemHolo == null) {
                     holoLocation.subtract(0, 1, 0);
                 }
 
                 boolean sell = sellHolos.size() > 0;
                 boolean buy = buyHolos.size() > 0;
+                if (sell && buy) holoLocation.add(0, 0.5, 0);
 
+                NamedHologram holo = new NamedHologram(holoLocation, Utils.locationToString(sign.getLocation()));
                 if (buy && ChestShopListener.buyLines.size() != 0){
-                    ListIterator<String> reversebuyLines = ChestShopListener.buyLines.listIterator(ChestShopListener.buyLines.size());
-                    while (reversebuyLines.hasPrevious()){
-                        ArmorStand buyHolo = (ArmorStand) sign.getWorld().spawnEntity(holoLocation, EntityType.ARMOR_STAND);
-
-                        buyHolo.setBasePlate(false);
-                        buyHolo.setVisible(false);
-                        buyHolo.setGravity(false);
-                        buyHolo.setAI(false);
-                        buyHolo.setInvulnerable(true);
-                        buyHolo.setCollidable(false);
-                        buyHolo.setSilent(true);
-                        buyHolo.setMarker(true);
-                        buyHolo.setPersistent(true);
-                        buyHolo.setSmall(true);
-                        buyHolo.setCustomNameVisible(true);
-                        String line = reversebuyLines.previous();
-                        buyHolo.setCustomName(Utils.chat(line
-                                .replace("%item%", Utils.getItemName(MaterialUtil.getItem(sign.getLine(3))))
-                                .replace("%amount%", sign.getLine(1))
-                                .replace("%cost%", String.format("%.2f", PriceUtil.getExactBuyPrice(sign.getLine(2))))));
-                        buyHolo.getPersistentDataContainer().set(ChestShopListener.holoDisplaykey, PersistentDataType.STRING, Utils.holoLocationToString(holoLocation, sign.getLocation()));
-                        buyHolo.getPersistentDataContainer().set(ChestShopListener.holoTypeKey, PersistentDataType.STRING, "buy");
-                        holoLocation = holoLocation.add(0, 0.25, 0);
+                    for (String line : ChestShopListener.buyLines){
+                        holo.appendTextLine(Utils.chat(line
+                                .replace("%item%", Utils.getItemName(MaterialUtil.getItem(sign.getLine((short) 3))))
+                                .replace("%amount%", sign.getLine((short)1))
+                                .replace("%cost%", String.format("%.2f", PriceUtil.getExactBuyPrice(sign.getLine((short) 2))))));
                     }
-
-                    holoLocation = holoLocation.add(0, 0.4, 0);
+                    holo.appendTextLine("");
                 }
                 if (sell && ChestShopListener.sellLines.size() != 0){
-                    ListIterator<String> reverseSellLines = ChestShopListener.sellLines.listIterator(ChestShopListener.sellLines.size());
-                    while (reverseSellLines.hasPrevious()){
-                        ArmorStand sellHolo = (ArmorStand) sign.getWorld().spawnEntity(holoLocation, EntityType.ARMOR_STAND);
-                        sellHolo.setBasePlate(false);
-                        sellHolo.setVisible(false);
-                        sellHolo.setGravity(false);
-                        sellHolo.setAI(false);
-                        sellHolo.setMarker(true);
-                        sellHolo.setSilent(true);
-                        sellHolo.setCollidable(false);
-                        sellHolo.setInvulnerable(true);
-                        sellHolo.setPersistent(true);
-                        sellHolo.setSmall(true);
-                        sellHolo.setCustomNameVisible(true);
-                        String line = reverseSellLines.previous();
-                        sellHolo.setCustomName(Utils.chat(line
-                                .replace("%item%", Utils.getItemName(MaterialUtil.getItem(sign.getLine(3))))
-                                .replace("%amount%", sign.getLine(1))
-                                .replace("%cost%", String.format("%.2f", PriceUtil.getExactSellPrice(sign.getLine(2))))));
-                        sellHolo.getPersistentDataContainer().set(ChestShopListener.holoDisplaykey, PersistentDataType.STRING, Utils.holoLocationToString(holoLocation, sign.getLocation()));
-                        sellHolo.getPersistentDataContainer().set(ChestShopListener.holoTypeKey, PersistentDataType.STRING, "sell");
-                        holoLocation = holoLocation.add(0, 0.25, 0);
+                    for (String line : ChestShopListener.sellLines){
+                        holo.appendTextLine(Utils.chat(line
+                                .replace("%item%", Utils.getItemName(MaterialUtil.getItem(sign.getLine((short) 3))))
+                                .replace("%amount%", sign.getLine((short)1))
+                                .replace("%cost%", String.format("%.2f", PriceUtil.getExactSellPrice(sign.getLine((short) 2))))));
                     }
-
                 }
-//                if (itemHolo != null){
-//                    Item finalItemHolo = itemHolo;
-//                    new BukkitRunnable(){
-//                        int timerLimiter = 0;
-//                        @Override
-//                        public void run() {
-//                            if (timerLimiter >= 5) {
-//                                cancel();
-//                                return;
-//                            }
-//                            finalItemHolo.setVelocity(new Vector(0, 0, 0));
-//                            finalItemHolo.teleport(itemLocation);
-//                            timerLimiter++;
-//                        }
-//                    }.runTaskTimer(Main.getPlugin(), 0L, 10L);
-//                }
+                if (itemHolo != null){
+                    holo.appendItemLine(itemHolo.getItemStack());
+                }
+                NamedHologramManager.addHologram(holo);
+                holo.refreshAll();
+
+                HologramDatabase.saveHologram(holo);
+                HologramDatabase.trySaveToDisk();
             }
         }
     }

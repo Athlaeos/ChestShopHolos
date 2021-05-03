@@ -62,6 +62,11 @@ public class Utils {
                 signLocation.getX(), signLocation.getY(), signLocation.getZ());
     }
 
+    public static String locationToString(Location location){
+        return String.format("%f-%f-%f",
+                location.getX(), location.getY(), location.getZ()).replace(".", "_");
+    }
+
     public static Location stringToPlacementLocation(String l, World w){
         try {
             String placementLocation = l.split("\\|")[0];
