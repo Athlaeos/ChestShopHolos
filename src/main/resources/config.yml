@@ -1,7 +1,21 @@
-buy_line: '&fBuy &e%amount%&fx&e%item%&f for &e%cost%&f$'
-sell_line: '&fSell &e%amount%&fx&e%item%&f for &e%cost%&f$'
+buy_line:
+  - '&e%amount%&fx&e%item%&f'
+  - '&fBuy for &e%cost%&f$'
+sell_line:
+  - '&e%amount%&fx&e%item%&f'
+  - '&fSell for &e%cost%&f$'
+
+hologram_render_distance: 5
 
 error_no_permission: '&cYou do not have access to this command'
 
+reload_success: '&aReload finished'
+
 toggle_on_sign: '&7ChestShops you make now get holograms placed above its &esigns'
 toggle_on_block: '&7ChestShops you make now get holograms placed above the &eblock &7it''s placed against'
+
+toggle_icon_on: '&7ChestShops you make have an item icon &eadded &7to them'
+toggle_icon_off: '&7ChestShops you make &eno longer &7receive items'
+
+toggle_holos_on: '&7ChestShops you make &ereceive &7a hologram on top upon creation'
+toggle_holos_off: '&7ChestShops you make &eno longer receive&7 a hologram on top upon creation'
